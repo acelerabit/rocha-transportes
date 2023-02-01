@@ -33,10 +33,29 @@ export class UploadAndProcessZipUseCase {
 
         const [endDest] =
           parsed['nfeProc']['NFe'][0]['infNFe'][0]['dest'][0]['enderDest'];
+        const [cnpjDest] =
+          parsed['nfeProc']['NFe'][0]['infNFe'][0]['dest'][0]['CNPJ'];
+        const [cnpjEmit] =
+          parsed['nfeProc']['NFe'][0]['infNFe'][0]['emit'][0]['CNPJ'];
+        const [nNF] = parsed['nfeProc']['NFe'][0]['infNFe'][0]['ide'][0]['nNF'];
+        const [enderEmit] =
+          parsed['nfeProc']['NFe'][0]['infNFe'][0]['emit'][0]['enderEmit'];
+        const [vol] =
+          parsed['nfeProc']['NFe'][0]['infNFe'][0]['transp'][0]['vol'];
+        const [vPag] =
+          parsed['nfeProc']['NFe'][0]['infNFe'][0]['pag'][0]['detPag'][0][
+            'vPag'
+          ];
+        // console.log(cnpjDest)
 
         const nfeId = parsed['nfeProc']['NFe'][0]['infNFe'][0]['$']['Id'];
 
+        const dataNF = {};
+        const dest = {};
+        const emit = {};
         const endDestFormatted = {};
+        const endEmitFormatted = {};
+        const volFormatted = {};
 
         Object.entries(endDest).forEach(
           ([key, [value]]: [string, [string]]) => {
@@ -44,9 +63,32 @@ export class UploadAndProcessZipUseCase {
           },
         );
 
-        endDestFormatted['Id'] = nfeId;
+        Object.entries(enderEmit).forEach(
+          ([key, [value]]: [string, [string]]) => {
+            Object.assign(endEmitFormatted, { [key]: value });
+          },
+        );
 
-        data.push(endDestFormatted);
+        Object.entries(vol).forEach(([key, [value]]: [string, [string]]) => {
+          Object.assign(volFormatted, { [key]: value });
+        });
+
+        dataNF['Id'] = nfeId;
+        dataNF['nNF'] = nNF;
+        dataNF['dest'] = {
+          ...dest,
+          CNPJ: cnpjDest,
+          enderDest: { ...endDestFormatted },
+        };
+        dataNF['emit'] = {
+          ...emit,
+          CNPJ: cnpjEmit,
+          enderEmit: { ...endEmitFormatted },
+        };
+        dataNF['vol'] = { ...volFormatted };
+        dataNF['vPag'] = vPag;
+
+        data.push(dataNF);
       });
     });
 
