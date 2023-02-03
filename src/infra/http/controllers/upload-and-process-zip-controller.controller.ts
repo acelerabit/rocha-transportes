@@ -1,5 +1,5 @@
 import { UploadAndProcessZipUseCase } from './../../../application/use-cases/uploadAndProcessZipUseCase';
-import { Controller } from '@nestjs/common';
+import { BadRequestException, Controller } from '@nestjs/common';
 import { Post, UploadedFile, UseInterceptors } from '@nestjs/common/decorators';
 import { FileInterceptor } from '@nestjs/platform-express';
 
@@ -12,7 +12,16 @@ export class UploadAndProcessZipControllerController {
   @UseInterceptors(FileInterceptor('file'))
   @Post()
   async UploadZip(@UploadedFile() file: Express.Multer.File) {
-    return this.uploadAndProcessZipUseCase.execute();
+    if (
+      file.originalname.split('.').pop() !== 'zip' ||
+      file.mimetype !== 'application/zip'
+    ) {
+      throw new BadRequestException(
+        'São permitidos apenas arquivos do tiop .zip!',
+      );
+    } else {
+      return this.uploadAndProcessZipUseCase.execute();
+    }
   }
   // @Post()
   // async UploadZip() {
