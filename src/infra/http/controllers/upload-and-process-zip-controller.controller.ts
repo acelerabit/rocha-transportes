@@ -12,12 +12,9 @@ export class UploadAndProcessZipControllerController {
   @UseInterceptors(FileInterceptor('file'))
   @Post()
   async UploadZip(@UploadedFile() file: Express.Multer.File) {
-    if (
-      file.originalname.split('.').pop() !== 'zip' ||
-      file.mimetype !== 'application/zip'
-    ) {
+    if (file.mimetype !== 'application/zip') {
       throw new BadRequestException(
-        'São permitidos apenas arquivos do tiop .zip!',
+        'Invalid file format. Only .zip files are allowed.',
       );
     } else {
       return this.uploadAndProcessZipUseCase.execute();
