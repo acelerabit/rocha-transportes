@@ -41,6 +41,12 @@ export class UploadAndProcessZipUseCase {
               parsed['nfeProc']['NFe'][0]['infNFe'][0]['dest'][0]['CNPJ'];
             const [cnpjEmit] =
               parsed['nfeProc']['NFe'][0]['infNFe'][0]['emit'][0]['CNPJ'];
+            const [xNome] =
+              parsed['nfeProc']['NFe'][0]['infNFe'][0]['emit'][0]['xNome'];
+            const [xFant] =
+              parsed['nfeProc']['NFe'][0]['infNFe'][0]['emit'][0]['xFant'];
+            const [xNomeDest] =
+              parsed['nfeProc']['NFe'][0]['infNFe'][0]['dest'][0]['xNome'];
             const [nNF] =
               parsed['nfeProc']['NFe'][0]['infNFe'][0]['ide'][0]['nNF'];
             const [enderEmit] =
@@ -51,8 +57,10 @@ export class UploadAndProcessZipUseCase {
               parsed['nfeProc']['NFe'][0]['infNFe'][0]['pag'][0]['detPag'][0][
                 'vPag'
               ];
-            // console.log(cnpjDest)
-
+            const [xPed] =
+              parsed['nfeProc']['NFe'][0]['infNFe'][0]['det'][0]['prod'][0][
+                'xPed'
+              ] ?? '';
             const nfeId = parsed['nfeProc']['NFe'][0]['infNFe'][0]['$']['Id'];
 
             const dataNF = {};
@@ -61,6 +69,7 @@ export class UploadAndProcessZipUseCase {
             const endDestFormatted = {};
             const endEmitFormatted = {};
             const volFormatted = {};
+            const prod = {};
 
             Object.entries(endDest).forEach(
               ([key, [value]]: [string, [string]]) => {
@@ -85,15 +94,22 @@ export class UploadAndProcessZipUseCase {
             dataNF['dest'] = {
               ...dest,
               CNPJ: cnpjDest,
+              xNome: xNomeDest,
               enderDest: { ...endDestFormatted },
             };
             dataNF['emit'] = {
               ...emit,
               CNPJ: cnpjEmit,
+              xNome,
+              xFant,
               enderEmit: { ...endEmitFormatted },
             };
             dataNF['vol'] = { ...volFormatted };
             dataNF['vPag'] = vPag;
+            dataNF['prod'] = {
+              ...prod,
+              xPed: xPed ? xPed : '',
+            };
 
             data.push(dataNF);
           },
@@ -106,6 +122,7 @@ export class UploadAndProcessZipUseCase {
 
       return data;
     } catch (err) {
+      console.log(err);
       throw new BadRequestException(
         'O sistema está um pouco instavel, tente novamente em alguns minutos!',
       );
