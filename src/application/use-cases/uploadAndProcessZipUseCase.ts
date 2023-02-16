@@ -57,6 +57,10 @@ export class UploadAndProcessZipUseCase {
               parsed['nfeProc']['NFe'][0]['infNFe'][0]['pag'][0]['detPag'][0][
                 'vPag'
               ];
+            const [vLiq] =
+              parsed['nfeProc']['NFe'][0]['infNFe'][0]['cobr'][0]['fat'][0][
+                'vLiq'
+              ];
             const [xPed] =
               parsed['nfeProc']['NFe'][0]['infNFe'][0]['det'][0]['prod'][0][
                 'xPed'
@@ -106,6 +110,7 @@ export class UploadAndProcessZipUseCase {
             };
             dataNF['vol'] = { ...volFormatted };
             dataNF['vPag'] = vPag;
+            dataNF['vLiq'] = vLiq;
             dataNF['prod'] = {
               ...prod,
               xPed: xPed ? xPed : '',
