@@ -17,10 +17,10 @@ const unlink = util.promisify(fs.unlink);
 @Injectable()
 export class UploadAndProcessZipUseCase {
   async execute() {
+    const files = await readdir(folderPath);
     try {
       const data = [];
 
-      const files = await readdir(folderPath);
       const firstFile = files[0];
       const firstFilePath = path.join(folderPath, firstFile);
 
@@ -28,97 +28,114 @@ export class UploadAndProcessZipUseCase {
       const zipEntries = zip.getEntries();
 
       zipEntries.forEach(function (zipEntry) {
-        parser.parseString(
-          zipEntry.getData().toString('utf8'),
-          (err, result) => {
-            const dataJson = JSON.stringify(result, null, 2);
+        try {
+          parser.parseString(
+            zipEntry.getData().toString('utf8'),
+            (err, result) => {
+              try {
+                const dataJson = JSON.stringify(result, null, 2);
 
-            const parsed = JSON.parse(dataJson);
+                const parsed = JSON.parse(dataJson);
 
-            const [endDest] =
-              parsed['nfeProc']['NFe'][0]['infNFe'][0]['dest'][0]['enderDest'];
-            const [cnpjDest] =
-              parsed['nfeProc']['NFe'][0]['infNFe'][0]['dest'][0]['CNPJ'];
-            const [cnpjEmit] =
-              parsed['nfeProc']['NFe'][0]['infNFe'][0]['emit'][0]['CNPJ'];
-            const [xNome] =
-              parsed['nfeProc']['NFe'][0]['infNFe'][0]['emit'][0]['xNome'];
-            const [xFant] =
-              parsed['nfeProc']['NFe'][0]['infNFe'][0]['emit'][0]['xFant'];
-            const [xNomeDest] =
-              parsed['nfeProc']['NFe'][0]['infNFe'][0]['dest'][0]['xNome'];
-            const [nNF] =
-              parsed['nfeProc']['NFe'][0]['infNFe'][0]['ide'][0]['nNF'];
-            const [enderEmit] =
-              parsed['nfeProc']['NFe'][0]['infNFe'][0]['emit'][0]['enderEmit'];
-            const [vol] =
-              parsed['nfeProc']['NFe'][0]['infNFe'][0]['transp'][0]['vol'];
-            const [vPag] =
-              parsed['nfeProc']['NFe'][0]['infNFe'][0]['pag'][0]['detPag'][0][
-                'vPag'
-              ];
-            const [vLiq] =
-              parsed['nfeProc']['NFe'][0]['infNFe'][0]['cobr'][0]['fat'][0][
-                'vLiq'
-              ];
-            const [xPed] =
-              parsed['nfeProc']['NFe'][0]['infNFe'][0]['det'][0]['prod'][0][
-                'xPed'
-              ] ?? '';
-            const nfeId = parsed['nfeProc']['NFe'][0]['infNFe'][0]['$']['Id'];
+                const [endDest] =
+                  parsed['nfeProc']['NFe'][0]['infNFe'][0]['dest'][0][
+                    'enderDest'
+                  ];
+                const [cnpjDest] =
+                  parsed['nfeProc']['NFe'][0]['infNFe'][0]['dest'][0]['CNPJ'];
+                const [cnpjEmit] =
+                  parsed['nfeProc']['NFe'][0]['infNFe'][0]['emit'][0]['CNPJ'];
+                const [xNome] =
+                  parsed['nfeProc']['NFe'][0]['infNFe'][0]['emit'][0]['xNome'];
+                const [xFant] =
+                  parsed['nfeProc']['NFe'][0]['infNFe'][0]['emit'][0]['xFant'];
+                const [xNomeDest] =
+                  parsed['nfeProc']['NFe'][0]['infNFe'][0]['dest'][0]['xNome'];
+                const [nNF] =
+                  parsed['nfeProc']['NFe'][0]['infNFe'][0]['ide'][0]['nNF'];
+                const [enderEmit] =
+                  parsed['nfeProc']['NFe'][0]['infNFe'][0]['emit'][0][
+                    'enderEmit'
+                  ];
+                const [vol] =
+                  parsed['nfeProc']['NFe'][0]['infNFe'][0]['transp'][0]['vol'];
+                const [vPag] =
+                  parsed['nfeProc']['NFe'][0]['infNFe'][0]['pag'][0][
+                    'detPag'
+                  ][0]['vPag'];
+                const [vLiq] =
+                  parsed['nfeProc']['NFe'][0]['infNFe'][0]['cobr'][0]['fat'][0][
+                    'vLiq'
+                  ];
+                const [xPed] =
+                  parsed['nfeProc']['NFe'][0]['infNFe'][0]['det'][0]['prod'][0][
+                    'xPed'
+                  ] ?? '';
+                const nfeId =
+                  parsed['nfeProc']['NFe'][0]['infNFe'][0]['$']['Id'];
 
-            const dataNF = {};
-            const dest = {};
-            const emit = {};
-            const endDestFormatted = {};
-            const endEmitFormatted = {};
-            const volFormatted = {};
-            const prod = {};
+                const dataNF = {};
+                const dest = {};
+                const emit = {};
+                const endDestFormatted = {};
+                const endEmitFormatted = {};
+                const volFormatted = {};
+                const prod = {};
 
-            Object.entries(endDest).forEach(
-              ([key, [value]]: [string, [string]]) => {
-                Object.assign(endDestFormatted, { [key]: value });
-              },
-            );
+                Object.entries(endDest).forEach(
+                  ([key, [value]]: [string, [string]]) => {
+                    Object.assign(endDestFormatted, { [key]: value });
+                  },
+                );
 
-            Object.entries(enderEmit).forEach(
-              ([key, [value]]: [string, [string]]) => {
-                Object.assign(endEmitFormatted, { [key]: value });
-              },
-            );
+                Object.entries(enderEmit).forEach(
+                  ([key, [value]]: [string, [string]]) => {
+                    Object.assign(endEmitFormatted, { [key]: value });
+                  },
+                );
 
-            Object.entries(vol).forEach(
-              ([key, [value]]: [string, [string]]) => {
-                Object.assign(volFormatted, { [key]: value });
-              },
-            );
+                Object.entries(vol).forEach(
+                  ([key, [value]]: [string, [string]]) => {
+                    Object.assign(volFormatted, { [key]: value });
+                  },
+                );
 
-            dataNF['Id'] = nfeId;
-            dataNF['nNF'] = nNF;
-            dataNF['dest'] = {
-              ...dest,
-              CNPJ: cnpjDest,
-              xNome: xNomeDest,
-              enderDest: { ...endDestFormatted },
-            };
-            dataNF['emit'] = {
-              ...emit,
-              CNPJ: cnpjEmit,
-              xNome,
-              xFant,
-              enderEmit: { ...endEmitFormatted },
-            };
-            dataNF['vol'] = { ...volFormatted };
-            dataNF['vPag'] = vPag;
-            dataNF['vLiq'] = vLiq;
-            dataNF['prod'] = {
-              ...prod,
-              xPed: xPed ? xPed : '',
-            };
+                dataNF['Id'] = nfeId;
+                dataNF['nNF'] = nNF;
+                dataNF['dest'] = {
+                  ...dest,
+                  CNPJ: cnpjDest,
+                  xNome: xNomeDest,
+                  enderDest: { ...endDestFormatted },
+                };
+                dataNF['emit'] = {
+                  ...emit,
+                  CNPJ: cnpjEmit,
+                  xNome,
+                  xFant,
+                  enderEmit: { ...endEmitFormatted },
+                };
+                dataNF['vol'] = { ...volFormatted };
+                dataNF['vPag'] = vPag;
+                dataNF['vLiq'] = vLiq;
+                dataNF['prod'] = {
+                  ...prod,
+                  xPed: xPed ? xPed : '',
+                };
 
-            data.push(dataNF);
-          },
-        );
+                data.push(dataNF);
+              } catch (err) {
+                throw new BadRequestException(
+                  'Há algum arquivo na lista diferente do tipo de arquivo xml',
+                );
+              }
+            },
+          );
+        } catch (err) {
+          throw new BadRequestException(
+            'Há algum arquivo na lista diferente do tipo de arquivo xml',
+          );
+        }
       });
 
       for (const file of files) {
@@ -127,10 +144,20 @@ export class UploadAndProcessZipUseCase {
 
       return data;
     } catch (err) {
-      console.log(err);
       throw new BadRequestException(
         'O sistema está um pouco instavel, tente novamente em alguns minutos!',
       );
+    } finally {
+      const unlinkPromises = files.map((file) =>
+        unlink(path.join(folderPath, file)),
+      );
+      Promise.all(unlinkPromises)
+        .then(() => {
+          console.log('Todos os arquivos foram excluídos com sucesso!');
+        })
+        .catch((error) => {
+          // console.error('Erro ao excluir arquivos:', error);
+        });
     }
   }
 }
