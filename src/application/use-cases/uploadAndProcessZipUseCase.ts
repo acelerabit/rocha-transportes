@@ -74,6 +74,18 @@ export class UploadAndProcessZipUseCase {
                 const nfeId =
                   parsed['nfeProc']['NFe'][0]['infNFe'][0]['$']['Id'];
 
+                const [vProd] =
+                  parsed['nfeProc']['NFe'][0]['infNFe'][0]['total'][0][
+                    'ICMSTot'
+                  ][0]['vProd'];
+                const [vNF] =
+                  parsed['nfeProc']['NFe'][0]['infNFe'][0]['total'][0][
+                    'ICMSTot'
+                  ][0]['vNF'];
+
+                const [dhEmi] =
+                  parsed['nfeProc']['NFe'][0]['infNFe'][0]['ide'][0]['dhEmi'];
+
                 const dataNF = {};
                 const dest = {};
                 const emit = {};
@@ -116,12 +128,13 @@ export class UploadAndProcessZipUseCase {
                   enderEmit: { ...endEmitFormatted },
                 };
                 dataNF['vol'] = { ...volFormatted };
-                dataNF['vPag'] = vPag;
-                dataNF['vLiq'] = vLiq;
+                dataNF['vPag'] = vNF;
+                dataNF['vLiq'] = vProd;
                 dataNF['prod'] = {
                   ...prod,
                   xPed: xPed ? xPed : '',
                 };
+                dataNF['dhEmi'] = dhEmi;
 
                 data.push(dataNF);
               } catch (err) {
