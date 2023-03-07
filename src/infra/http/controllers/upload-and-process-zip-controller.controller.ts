@@ -1,3 +1,4 @@
+import { UploadAndProcessXmlUseCase } from './../../../application/use-cases/uploadAndProcessXmlUseCase';
 import { UploadAndProcessZipUseCase } from './../../../application/use-cases/uploadAndProcessZipUseCase';
 import { BadRequestException, Controller } from '@nestjs/common';
 import { Post, UploadedFile, UseInterceptors } from '@nestjs/common/decorators';
@@ -7,6 +8,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 export class UploadAndProcessZipControllerController {
   constructor(
     private readonly uploadAndProcessZipUseCase: UploadAndProcessZipUseCase,
+    private readonly uploadAndProcessXmlUseCase: UploadAndProcessXmlUseCase,
   ) {}
 
   @UseInterceptors(FileInterceptor('file'))
@@ -20,8 +22,10 @@ export class UploadAndProcessZipControllerController {
       return this.uploadAndProcessZipUseCase.execute();
     }
   }
-  // @Post()
-  // async UploadZip() {
-  //   return this.uploadAndProcessZipUseCase.execute({ file: 'heelo' });
-  // }
+
+  @Post('/single-xml')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadXml(@UploadedFile() file) {
+    return this.uploadAndProcessXmlUseCase.execute(file);
+  }
 }
