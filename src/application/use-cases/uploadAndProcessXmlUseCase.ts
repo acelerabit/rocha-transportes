@@ -48,7 +48,7 @@ export class UploadAndProcessXmlUseCase {
       const vPag = parsed['nfeProc']['NFe']['infNFe']['pag']['detPag']['vPag'];
       const vLiq = parsed['nfeProc']['NFe']['infNFe']['cobr']['fat']['vLiq'];
       const xPed =
-        parsed['nfeProc']['NFe']['infNFe']['det']['prod']['xPed'] ?? '';
+        parsed['nfeProc']['NFe']['infNFe']['det'][0]['prod']['xPed'] ?? '';
       const nfeId = parsed['nfeProc']['NFe']['infNFe']['$']['Id'];
       const vProd =
         parsed['nfeProc']['NFe']['infNFe']['total']['ICMSTot']['vProd'];
@@ -58,8 +58,6 @@ export class UploadAndProcessXmlUseCase {
       const dest = {};
       const emit = {};
       const prod = {};
-
-      console.log(dataNF);
 
       dataNF['Id'] = nfeId;
       dataNF['nNF'] = nNF;
@@ -87,6 +85,7 @@ export class UploadAndProcessXmlUseCase {
 
       data.push(dataNF);
     } catch (err) {
+      console.log(err);
       throw new BadRequestException(
         'Há algum arquivo na lista diferente do tipo de arquivo xml',
       );
