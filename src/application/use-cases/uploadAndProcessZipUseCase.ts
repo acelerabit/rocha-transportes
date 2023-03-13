@@ -45,6 +45,7 @@ export class UploadAndProcessZipUseCase {
                   parsed['nfeProc']['NFe'][0]['infNFe'][0]['dest'][0]['CNPJ'];
                 const [cnpjEmit] =
                   parsed['nfeProc']['NFe'][0]['infNFe'][0]['emit'][0]['CNPJ'];
+
                 const [xNome] =
                   parsed['nfeProc']['NFe'][0]['infNFe'][0]['emit'][0]['xNome'];
                 const [xFant] =
@@ -59,14 +60,8 @@ export class UploadAndProcessZipUseCase {
                   ];
                 const [vol] =
                   parsed['nfeProc']['NFe'][0]['infNFe'][0]['transp'][0]['vol'];
-                const [vPag] =
-                  parsed['nfeProc']['NFe'][0]['infNFe'][0]['pag'][0][
-                    'detPag'
-                  ][0]['vPag'];
-                const [vLiq] =
-                  parsed['nfeProc']['NFe'][0]['infNFe'][0]['cobr'][0]['fat'][0][
-                    'vLiq'
-                  ];
+
+                console.log(parsed['nfeProc']['NFe'][0]['infNFe'][0]['cobr']);
                 const [xPed] =
                   parsed['nfeProc']['NFe'][0]['infNFe'][0]['det'][0]['prod'][0][
                     'xPed'
@@ -138,6 +133,7 @@ export class UploadAndProcessZipUseCase {
 
                 data.push(dataNF);
               } catch (err) {
+                console.log(err);
                 throw new BadRequestException(
                   'Há algum arquivo na lista diferente do tipo de arquivo xml',
                 );
@@ -145,6 +141,7 @@ export class UploadAndProcessZipUseCase {
             },
           );
         } catch (err) {
+          console.log(err);
           throw new BadRequestException(
             'Há algum arquivo na lista diferente do tipo de arquivo xml',
           );
@@ -157,6 +154,7 @@ export class UploadAndProcessZipUseCase {
 
       return data;
     } catch (err) {
+      // console.log(err);
       throw new BadRequestException(
         'O sistema está um pouco instavel, tente novamente em alguns minutos!',
       );
