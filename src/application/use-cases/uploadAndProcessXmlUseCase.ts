@@ -40,13 +40,11 @@ export class UploadAndProcessXmlUseCase {
       const cnpjDest = parsed['nfeProc']['NFe']['infNFe']['dest']['CNPJ'];
       const cnpjEmit = parsed['nfeProc']['NFe']['infNFe']['emit']['CNPJ'];
       const xNome = parsed['nfeProc']['NFe']['infNFe']['emit']['xNome'];
-      const xFant = parsed['nfeProc']['NFe']['infNFe']['emit']['xFant'];
+      const xFant = parsed['nfeProc']['NFe']['infNFe']['emit']['xFant'] ?? '';
       const xNomeDest = parsed['nfeProc']['NFe']['infNFe']['dest']['xNome'];
       const nNF = parsed['nfeProc']['NFe']['infNFe']['ide']['nNF'];
       const enderEmit = parsed['nfeProc']['NFe']['infNFe']['emit']['enderEmit'];
       const vol = parsed['nfeProc']['NFe']['infNFe']['transp']['vol'];
-      const vPag = parsed['nfeProc']['NFe']['infNFe']['pag']['detPag']['vPag'];
-      const vLiq = parsed['nfeProc']['NFe']['infNFe']['cobr']['fat']['vLiq'];
       const xPed =
         parsed['nfeProc']['NFe']['infNFe']['det'][0]['prod']['xPed'] ?? '';
       const nfeId = parsed['nfeProc']['NFe']['infNFe']['$']['Id'];
@@ -71,7 +69,7 @@ export class UploadAndProcessXmlUseCase {
         ...emit,
         CNPJ: cnpjEmit,
         xNome,
-        xFant,
+        xFant: xFant ? xFant : '',
         enderEmit: { ...enderEmit },
       };
       dataNF['vol'] = { ...vol };
